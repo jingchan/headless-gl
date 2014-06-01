@@ -21,9 +21,11 @@
       'include_dirs': [
         "<!(node -e \"require('nan')\")",
         '<(module_root_dir)/deps/include',
+	'/usr/local/include'
       ],
       'library_dirs': [
         '<(module_root_dir)/deps/<(platform)',
+	'/usr/local/lib'
       ],
       'conditions': [
         ['OS=="mac"', {

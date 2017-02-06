@@ -11,7 +11,9 @@ var MAX_UNIFORM_LENGTH = 256
 var MAX_ATTRIBUTE_LENGTH = 256
 
 // We need to wrap some of the native WebGL functions to handle certain error codes and check input values
-var gl = nativeGL.WebGLRenderingContext.prototype
+var native = nativeGL.WebGLRenderingContext.prototype
+var gl = Object.create({}, native);
+
 gl.VERSION = 0x1F02
 gl.IMPLEMENTATION_COLOR_READ_TYPE = 0x8B9A
 gl.IMPLEMENTATION_COLOR_READ_FORMAT = 0x8B9B
@@ -22,6 +24,9 @@ var ATTACHMENTS = [
   gl.STENCIL_ATTACHMENT,
   gl.DEPTH_STENCIL_ATTACHMENT
 ]
+
+// Fix: Prevent memory leak
+process.removeListener('exit', nativeGL.cleanup);
 
 // Hook clean up
 process.on('exit', nativeGL.cleanup)

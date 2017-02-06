@@ -12,7 +12,7 @@ var MAX_ATTRIBUTE_LENGTH = 256
 
 // We need to wrap some of the native WebGL functions to handle certain error codes and check input values
 var native = nativeGL.WebGLRenderingContext.prototype
-var gl = Object.create({}, native);
+var gl = Object.assign({}, native);
 
 gl.VERSION = 0x1F02
 gl.IMPLEMENTATION_COLOR_READ_TYPE = 0x8B9A

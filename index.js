@@ -1,7 +1,5 @@
-module.exports = {
-    webgl: require('./lib/webgl'),
-    Image: require('./lib/image'),
-    document: require('./lib/platform_glfw')
-    //document: require('./lib/platform_sdl')
-    //document: require('./lib/platform_sfml')
-};
+if (typeof WebGLRenderingContext !== 'undefined') {
+  module.exports = require('./browser_index')
+} else {
+  module.exports = require('./node_index')
+}

@@ -3,51 +3,103 @@
     'platform': '<(OS)',
   },
   'conditions': [
-    # Replace gyp platform with node platform, blech
     ['platform == "mac"', {'variables': {'platform': 'darwin'}}],
-    ['platform == "win"', {'variables': {'platform': 'win32'}}],
+    ['platform == "win"', {'variables': {'platform': 'win32'}}]
   ],
   'targets': [
     {
       'target_name': 'webgl',
       'defines': [
-        'VERSION=0.4.1'
+        'VERSION=1.0.0'
       ],
-      'sources': [ 
+      'sources': [
           'src/bindings.cc',
-          'src/image.cc',
           'src/webgl.cc',
+          'src/procs.cc'
       ],
       'include_dirs': [
         "<!(node -e \"require('nan')\")",
         '<(module_root_dir)/deps/include',
-	'/usr/local/include'
+        "angle/include"
       ],
       'library_dirs': [
-        '<(module_root_dir)/deps/<(platform)',
-	'/usr/local/lib'
+        '<(module_root_dir)/deps/<(platform)'
       ],
       'conditions': [
         ['OS=="mac"', {
-          'libraries': ['-lGLEW','-lfreeimage','-framework OpenGL']}],
-        ['OS=="linux"', {'libraries': ['-lfreeimage','-lGLEW','-lGL']}],
-        ['OS=="win"', {
-          'libraries': [
-            'freeimage64.lib','glew64s.lib','opengl32.lib'
+            'dependencies':
+            [
+              'angle/src/angle.gyp:libEGL',
+              'angle/src/angle.gyp:libGLESv2'
             ],
-          'defines' : [
-            'WIN32_LEAN_AND_MEAN',
-            'VC_EXTRALEAN'
-          ],
-          'cflags' : [
-          '/Ox','/Ob2','/Oi','/Ot','/Oy','/GL','/GF','/Gm-','/EHsc','/MT','/GS','/Gy','/GR-','/Gd','/wd"4530"','/wd"4251"' 
-          ],
-          'ldflags' : [
-            '/OPT:REF','/OPT:ICF','/LTCG'
-          ]
+            'libraries': [
+                '-framework QuartzCore',
+                '-framework Quartz'
+            ],
+        }],
+        ['OS=="linux"', {
+            'dependencies':
+            [
+              'angle/src/angle.gyp:libEGL',
+              'angle/src/angle.gyp:libGLESv2'
+            ]
+        }],
+        ['OS=="win"', {
+            'library_dirs': [
+              '<(module_root_dir)/deps/windows/lib/<(target_arch)',
+            ],
+            'libraries': [
+              'libEGL.lib',
+              'libGLESv2.lib'
+            ],
+            'defines' : [
+              'WIN32_LEAN_AND_MEAN',
+              'VC_EXTRALEAN'
+            ],
+            'configurations': {
+              'Release': {
+                'msvs_settings': {
+                  'VCCLCompilerTool': {
+                    'RuntimeLibrary': 0, # static release
+                    'Optimization': 0, # /Od, disabled
+                    'FavorSizeOrSpeed': 1, # /Ot, favour speed over size
+                    'InlineFunctionExpansion': 2, # /Ob2, inline anything eligible
+                    'WholeProgramOptimization': 'false', # No
+                    'OmitFramePointers': 'true',
+                    'EnableFunctionLevelLinking': 'true',
+                    'EnableIntrinsicFunctions': 'true',
+                    'RuntimeTypeInfo': 'false',
+                    'ExceptionHandling': '0',
+                    'AdditionalOptions': [
+                      '/MP', # compile across multiple CPUs
+                    ]
+                  },
+                  'VCLinkerTool': {
+                    'LinkTimeCodeGeneration': 0, # Link Time Code generation default
+                    'OptimizeReferences': 1, # /OPT:NOREF
+                    'EnableCOMDATFolding': 1, # /OPT:NOICF
+                    'LinkIncremental': 2, # /INCREMENTAL
+                  }
+                },
+                'msvs_configuration_attributes':
+                {
+                    'OutputDirectory': '$(SolutionDir)$(ConfigurationName)',
+                    'IntermediateDirectory': '$(OutDir)\\obj\\$(ProjectName)'
+                }
+              }
+            },
+            "copies": [
+              {
+                'destination': '$(SolutionDir)$(ConfigurationName)',
+                'files': [
+                  '<(module_root_dir)/deps/windows/dll/<(target_arch)/libEGL.dll',
+                  '<(module_root_dir)/deps/windows/dll/<(target_arch)/libGLESv2.dll'
+                ]
+              }
+           ]
           }
-        ],
-      ],
+        ]
+      ]
     }
   ]
 }

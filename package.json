@@ -1,38 +1,52 @@
 {
-  "author": "Mikael Bourges-Sevenier <mikeseven@gmail.com>",
-  "name": "node-webgl",
-  "description": "WebGL bindings for node",
-  "version": "0.4.1",
+  "name": "gl",
+  "version": "4.0.3",
+  "description": "Creates a WebGL context without a window",
   "main": "index.js",
-  "keywords": [
-    "webgl",
-    "opengl"
-  ],
-  "engines": {
-    "node": ">=0.7.0"
-  },
   "directories": {
-    "src": "src",
-    "lib": "lib",
-    "doc": "doc",
-    "examples": "examples",
     "test": "test"
+  },
+  "browser": "browser_index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "standard | snazzy && tape test/*.js | faucet",
+    "rebuild": "node-gyp rebuild --verbose",
+    "prebuild": "prebuild --all --strip",
+    "install": "prebuild --install"
+  },
+  "dependencies": {
+    "bindings": "^1.2.1",
+    "bit-twiddle": "^1.0.2",
+    "glsl-tokenizer": "^2.0.2",
+    "nan": "^2.3.3",
+    "node-gyp": "^3.3.1",
+    "prebuild": "^5.1.2"
+  },
+  "devDependencies": {
+    "angle-normals": "^1.0.0",
+    "bunny": "^1.0.1",
+    "faucet": "0.0.1",
+    "gl-conformance": "^2.0.9",
+    "snazzy": "^3.0.0",
+    "standard": "^6.0.8",
+    "tape": "^4.0.1"
   },
   "repository": {
     "type": "git",
-    "url": "https://mikeseven@github.com/mikeseven/node-webgl.git"
+    "url": "git://github.com/stackgl/headless-gl.git"
   },
-  "scripts": {
-    "install": "node-gyp rebuild"
-  },
-  "licenses": [
-    {
-      "type": "BSD",
-      "url": "http://github.com/mikeseven/node-webgl/raw/master/LICENSES"
-    }
+  "keywords": [
+    "webgl",
+    "opengl",
+    "gl",
+    "headless",
+    "server",
+    "gpgpu"
   ],
-  "dependencies": {
-    "node-glfw": "git://github.com/jingchan/node-glfw",
-    "nan": "^0.8.0"
-  }
+  "author": "Mikola Lysenko",
+  "license": "BSD",
+  "gypfile": true,
+  "readmeFilename": "README.md"
 }

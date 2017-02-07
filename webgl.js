@@ -13,7 +13,116 @@ var MAX_ATTRIBUTE_LENGTH = 256
 // We need to wrap some of the native WebGL functions to handle certain error codes and check input values
 var gl = nativeGL.WebGLRenderingContext.prototype
 
+function getOrCache(methodName) {
+	if(gl['_'+methodName]) {
+		return gl['_'+methodName];
+	} else {
+		gl['_'+methodName] = gl[methodName];
+	}
+
+	return gl['_'+methodName]
+}
+var _createFramebuffer = getOrCache('createFramebuffer')
+var _createRenderbuffer = getOrCache('createRenderbuffer')
+var _createTexture = getOrCache('createTexture')
+var _bindFramebuffer = getOrCache('bindFramebuffer')
+var _framebufferTexture2D = getOrCache('framebufferTexture2D')
+var _bindTexture = getOrCache('bindTexture')
+var _texImage2D = getOrCache('texImage2D')
+var _texParameteri = getOrCache('texParameteri')
+var _bindRenderbuffer = getOrCache('bindRenderbuffer')
+var _destroy = getOrCache('destroy')
+var _activeTexture = getOrCache('activeTexture')
+var _attachShader = getOrCache('attachShader')
+var _bindAttribLocation = getOrCache('bindAttribLocation')
+var _bindBuffer = getOrCache('bindBuffer')
+var _blendColor = getOrCache('blendColor')
+var _blendEquation = getOrCache('blendEquation')
+var _blendEquationSeparate = getOrCache('blendEquationSeparate')
+var _blendFunc = getOrCache('blendFunc')
+var _blendFuncSeparate = getOrCache('blendFuncSeparate')
+var _bufferData = getOrCache('bufferData')
+var _bufferSubData = getOrCache('bufferSubData')
+var _clear = getOrCache('clear')
+var _clearColor = getOrCache('clearColor')
+var _clearDepth = getOrCache('clearDepth')
+var _clearStencil = getOrCache('clearStencil')
+var _colorMask = getOrCache('colorMask')
+var _compileShader = getOrCache('compileShader')
+var _copyTexImage2D = getOrCache('copyTexImage2D')
+var _copyTexSubImage2D = getOrCache('copyTexSubImage2D')
+var _cullFace = getOrCache('cullFace')
+var _createShader = getOrCache('createShader')
+var _deleteBuffer = getOrCache('deleteBuffer')
+var _deleteFramebuffer = getOrCache('deleteFramebuffer')
+var _deleteRenderbuffer = getOrCache('deleteRenderbuffer')
+var _deleteTexture = getOrCache('deleteTexture')
+var _depthFunc = getOrCache('depthFunc')
+var _depthMask = getOrCache('depthMask')
+var _depthRange = getOrCache('depthRange')
+var _detachShader = getOrCache('detachShader')
+var _disable = getOrCache('disable')
+var _disableVertexAttribArray = getOrCache('disableVertexAttribArray')
+var _vertexAttribDivisor = getOrCache('vertexAttribDivisor')
+var _drawArrays = getOrCache('drawArrays')
+var _drawArraysInstanced = getOrCache('drawArraysInstanced')
+var _drawElements = getOrCache('drawElements')
+var _drawElementsInstanced = getOrCache('drawElementsInstanced')
+var _enable = getOrCache('enable')
+var _enableVertexAttribArray = getOrCache('enableVertexAttribArray')
+var _finish = getOrCache('finish')
+var _flush = getOrCache('flush')
+var _framebufferRenderbuffer = getOrCache('framebufferRenderbuffer')
+var _frontFace = getOrCache('frontFace')
+var _generateMipmap = getOrCache('generateMipmap')
+var _getActiveAttrib = getOrCache('getActiveAttrib')
+var _getActiveUniform = getOrCache('getActiveUniform')
+var _getAttachedShaders = getOrCache('getAttachedShaders')
+var _getAttribLocation = getOrCache('getAttribLocation')
+var _getParameter = getOrCache('getParameter')
+var _getShaderPrecisionFormat = getOrCache('getShaderPrecisionFormat')
+var _getBufferParameter = getOrCache('getBufferParameter')
+var _getError = getOrCache('getError')
+var _getProgramParameter = getOrCache('getProgramParameter')
+var _getProgramInfoLog = getOrCache('getProgramInfoLog')
+var _getRenderbufferParameter = getOrCache('getRenderbufferParameter')
+var _getShaderParameter = getOrCache('getShaderParameter')
+var _getShaderInfoLog = getOrCache('getShaderInfoLog')
+var _getTexParameter = getOrCache('getTexParameter')
+var _getUniform = getOrCache('getUniform')
+var _getUniformLocation = getOrCache('getUniformLocation')
+var _hint = getOrCache('hint')
+var _isEnabled = getOrCache('isEnabled')
+var _lineWidth = getOrCache('lineWidth')
+var _linkProgram = getOrCache('linkProgram')
+var _pixelStorei = getOrCache('pixelStorei')
+var _polygonOffset = getOrCache('polygonOffset')
+var _readPixels = getOrCache('readPixels')
+var _renderbufferStorage = getOrCache('renderbufferStorage')
+var _sampleCoverage = getOrCache('sampleCoverage')
+var _scissor = getOrCache('scissor')
+var _shaderSource = getOrCache('shaderSource')
+var _stencilFunc = getOrCache('stencilFunc')
+var _stencilFuncSeparate = getOrCache('stencilFuncSeparate')
+var _stencilMask = getOrCache('stencilMask')
+var _stencilMaskSeparate = getOrCache('stencilMaskSeparate')
+var _stencilOp = getOrCache('stencilOp')
+var _stencilOpSeparate = getOrCache('stencilOpSeparate')
+var _texSubImage2D = getOrCache('texSubImage2D')
+var _texParameterf = getOrCache('texParameterf')
+var _useProgram = getOrCache('useProgram')
+var _validateProgram = getOrCache('validateProgram')
+var _vertexAttribPointer = getOrCache('vertexAttribPointer')
+var _viewport = getOrCache('viewport')
+
 // var gl = Object.assign({}, native);
+
+var ATTACHMENTS = [
+	gl.COLOR_ATTACHMENT0,
+	gl.DEPTH_ATTACHMENT,
+	gl.STENCIL_ATTACHMENT,
+	gl.DEPTH_STENCIL_ATTACHMENT
+]
 
 if(!(nativeGL.__modified)){
   nativeGL.__modified = true
@@ -22,197 +131,12 @@ if(!(nativeGL.__modified)){
   gl.IMPLEMENTATION_COLOR_READ_TYPE = 0x8B9A
   gl.IMPLEMENTATION_COLOR_READ_FORMAT = 0x8B9B
 
-  var ATTACHMENTS = [
-    gl.COLOR_ATTACHMENT0,
-    gl.DEPTH_ATTACHMENT,
-    gl.STENCIL_ATTACHMENT,
-    gl.DEPTH_STENCIL_ATTACHMENT
-  ]
-
   // Fix: Prevent memory leak
   // process.removeListener('exit', nativeGL.cleanup);
 
   // Hook clean up
   process.on('exit', nativeGL.cleanup)
 
-  // Export type boxes for WebGL
-  exports.WebGLRenderingContext = nativeGL.WebGLRenderingContext
-
-  function WebGLProgram (_, ctx) {
-    this._ = _
-    this._ctx = ctx
-    this._linkCount = 0
-    this._pendingDelete = false
-    this._linkStatus = false
-    this._linkInfoLog = 'not linked'
-    this._references = []
-    this._refCount = 0
-    this._attributes = []
-    this._uniforms = []
-  }
-  exports.WebGLProgram = WebGLProgram
-
-  function WebGLShader (_, ctx, type) {
-    this._ = _
-    this._type = type
-    this._ctx = ctx
-    this._pendingDelete = false
-    this._references = []
-    this._refCount = 0
-    this._source = ''
-    this._compileStatus = false
-    this._compileInfo = ''
-  }
-  exports.WebGLShader = WebGLShader
-
-  function WebGLBuffer (_, ctx) {
-    this._ = _
-    this._ctx = ctx
-    this._binding = 0
-    this._size = 0
-    this._pendingDelete = false
-    this._references = []
-    this._refCount = 0
-    this._elements = new Uint8Array(0)
-  }
-  exports.WebGLBuffer = WebGLBuffer
-
-  function WebGLFramebuffer (_, ctx) {
-    this._ = _
-    this._ctx = ctx
-    this._binding = 0
-    this._pendingDelete = false
-    this._references = []
-    this._refCount = 0
-
-    this._width = 0
-    this._height = 0
-
-    this._attachments = {}
-    this._attachments[gl.COLOR_ATTACHMENT0] = null
-    this._attachments[gl.DEPTH_ATTACHMENT] = null
-    this._attachments[gl.STENCIL_ATTACHMENT] = null
-    this._attachments[gl.DEPTH_STENCIL_ATTACHMENT] = null
-
-    this._attachmentLevel = {}
-    this._attachmentLevel[gl.COLOR_ATTACHMENT0] = 0
-    this._attachmentLevel[gl.DEPTH_ATTACHMENT] = 0
-    this._attachmentLevel[gl.STENCIL_ATTACHMENT] = 0
-    this._attachmentLevel[gl.DEPTH_STENCIL_ATTACHMENT] = 0
-
-    this._attachmentFace = {}
-    this._attachmentFace[gl.COLOR_ATTACHMENT0] = 0
-    this._attachmentFace[gl.DEPTH_ATTACHMENT] = 0
-    this._attachmentFace[gl.STENCIL_ATTACHMENT] = 0
-    this._attachmentFace[gl.DEPTH_STENCIL_ATTACHMENT] = 0
-  }
-  exports.WebGLFramebuffer = WebGLFramebuffer
-
-  function WebGLRenderbuffer (_, ctx) {
-    this._ = _
-    this._ctx = ctx
-    this._binding = 0
-    this._pendingDelete = false
-    this._references = []
-    this._refCount = 0
-    this._width = 0
-    this._height = 0
-    this._format = 0
-  }
-  exports.WebGLRenderbuffer = WebGLRenderbuffer
-
-  function WebGLTexture (_, ctx) {
-    this._ = _
-    this._ctx = ctx
-    this._binding = 0
-    this._pendingDelete = false
-    this._references = []
-    this._refCount = 0
-    this._levelWidth = new Int32Array(32)
-    this._levelHeight = new Int32Array(32)
-    this._format = 0
-    this._type = 0
-  }
-  exports.WebGLTexture = WebGLTexture
-
-  function WebGLActiveInfo (_) {
-    this.size = _.size
-    this.type = _.type
-    this.name = _.name
-  }
-  exports.WebGLActiveInfo = WebGLActiveInfo
-
-  function WebGLShaderPrecisionFormat (_) {
-    this.rangeMin = _.rangeMin
-    this.rangeMax = _.rangeMax
-    this.precision = _.precision
-  }
-  exports.WebGLShaderPrecisionFormat = WebGLShaderPrecisionFormat
-
-  function WebGLUniformLocation (_, program, info) {
-    this._ = _
-    this._program = program
-    this._linkCount = program._linkCount
-    this._activeInfo = info
-    this._array = null
-  }
-  exports.WebGLUniformLocation = WebGLUniformLocation
-
-  function WebGLContextAttributes (
-    alpha,
-    depth,
-    stencil,
-    antialias,
-    premultipliedAlpha,
-    preserveDrawingBuffer,
-    preferLowPowerToHighPerformance,
-    failIfMajorPerformanceCaveat) {
-    this.alpha = alpha
-    this.depth = depth
-    this.stencil = stencil
-    this.antialias = antialias
-    this.premultipliedAlpha = premultipliedAlpha
-    this.preserveDrawingBuffer = preserveDrawingBuffer
-    this.preferLowPowerToHighPerformance = preferLowPowerToHighPerformance
-    this.failIfMajorPerformanceCaveat = failIfMajorPerformanceCaveat
-  }
-  exports.WebGLContextAttributes = WebGLContextAttributes
-
-  function WebGLVertexAttribute (ctx, idx) {
-    this._ctx = ctx
-    this._idx = idx
-    this._isPointer = false
-    this._pointerBuffer = null
-    this._pointerOffset = 0
-    this._pointerSize = 0
-    this._pointerStride = 0
-    this._pointerType = gl.FLOAT
-    this._pointerNormal = false
-    this._divisor = 0
-    this._inputSize = 4
-    this._inputStride = 0
-    this._data = new Float32Array([0, 0, 0, 1])
-  }
-  exports.WebGLVertexAttribute = WebGLVertexAttribute
-
-  function WebGLTextureUnit (ctx, idx) {
-    this._ctx = ctx
-    this._idx = idx
-    this._mode = 0
-    this._bind2D = null
-    this._bindCube = null
-  }
-  exports.WebGLTextureUnit = WebGLTextureUnit
-
-  function WebGLDrawingBufferWrapper (
-    framebuffer,
-    color,
-    depthStencil) {
-    this._framebuffer = framebuffer
-    this._color = color
-    this._depthStencil = depthStencil
-  }
-  exports.WebGLDrawingBufferWrapper = WebGLDrawingBufferWrapper
 
   function ANGLE_instanced_arrays () {
   }
@@ -246,20 +170,6 @@ if(!(nativeGL.__modified)){
     data instanceof Int32Array ||
     data instanceof Float32Array ||
     data instanceof Float64Array
-  }
-
-  function activeTextureUnit (context) {
-    return context._textureUnits[context._activeTextureUnit]
-  }
-
-  function activeTexture (context, target) {
-    var activeUnit = activeTextureUnit(context)
-    if (target === gl.TEXTURE_2D) {
-      return activeUnit._bind2D
-    } else if (target === gl.TEXTURE_CUBE_MAP) {
-      return activeUnit._bindCube
-    }
-    return null
   }
 
   function validCubeTarget (target) {
@@ -664,7 +574,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _destroy = gl.destroy
   gl.destroy = function () {
     _destroy.call(this)
   }
@@ -906,7 +815,7 @@ if(!(nativeGL.__modified)){
     return ext
   }
 
-  var _activeTexture = gl.activeTexture
+
   gl.activeTexture = function activeTexture (texture) {
     texture |= 0
     var texNum = texture - gl.TEXTURE0
@@ -917,7 +826,7 @@ if(!(nativeGL.__modified)){
     setError(this, gl.INVALID_ENUM)
   }
 
-  var _attachShader = gl.attachShader
+
   gl.attachShader = function attachShader (program, shader) {
     if (!checkObject(program) ||
       !checkObject(shader)) {
@@ -947,7 +856,6 @@ if(!(nativeGL.__modified)){
     setError(this, gl.INVALID_OPERATION)
   }
 
-  var _bindAttribLocation = gl.bindAttribLocation
   gl.bindAttribLocation = function bindAttribLocation (program, index, name) {
     if (!checkObject(program) ||
       typeof name !== 'string') {
@@ -981,7 +889,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _bindBuffer = gl.bindBuffer
   gl.bindBuffer = function bindBuffer (target, buffer) {
     target |= 0
     if (!checkObject(buffer)) {
@@ -1018,7 +925,7 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _bindRenderbuffer = gl.bindRenderbuffer
+
   gl.bindRenderbuffer = function (target, object) {
     if (!checkObject(object)) {
       throw new TypeError('bindRenderbuffer(GLenum, WebGLRenderbuffer)')
@@ -1057,7 +964,6 @@ if(!(nativeGL.__modified)){
     this._activeRenderbuffer = object
   }
 
-  var _bindFramebuffer = gl.bindFramebuffer
   gl.bindFramebuffer = function bindFramebuffer (target, framebuffer) {
     if (!checkObject(framebuffer)) {
       throw new TypeError('bindFramebuffer(GLenum, WebGLFramebuffer)')
@@ -1097,7 +1003,7 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _bindTexture = gl.bindTexture
+
   gl.bindTexture = function bindTexture (target, texture) {
     target |= 0
 
@@ -1164,7 +1070,7 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _blendColor = gl.blendColor
+
   gl.blendColor = function blendColor (red, green, blue, alpha) {
     return _blendColor.call(this, +red, +green, +blue, +alpha)
   }
@@ -1175,7 +1081,7 @@ if(!(nativeGL.__modified)){
     mode === gl.FUNC_REVERSE_SUBTRACT
   }
 
-  var _blendEquation = gl.blendEquation
+
   gl.blendEquation = function blendEquation (mode) {
     mode |= 0
     if (validBlendMode(mode)) {
@@ -1184,7 +1090,6 @@ if(!(nativeGL.__modified)){
     setError(this, gl.INVALID_ENUM)
   }
 
-  var _blendEquationSeparate = gl.blendEquationSeparate
   gl.blendEquationSeparate = function blendEquationSeparate (modeRGB, modeAlpha) {
     modeRGB |= 0
     modeAlpha |= 0
@@ -1220,7 +1125,6 @@ if(!(nativeGL.__modified)){
       factor === gl.ONE_MINUS_CONSTANT_ALPHA)
   }
 
-  var _blendFunc = gl.blendFunc
   gl.blendFunc = function blendFunc (sfactor, dfactor) {
     sfactor |= 0
     dfactor |= 0
@@ -1236,7 +1140,6 @@ if(!(nativeGL.__modified)){
     _blendFunc.call(this, sfactor, dfactor)
   }
 
-  var _blendFuncSeparate = gl.blendFuncSeparate
   gl.blendFuncSeparate = function blendFuncSeparate (
     srcRGB,
     dstRGB,
@@ -1269,7 +1172,7 @@ if(!(nativeGL.__modified)){
       dstAlpha)
   }
 
-  var _bufferData = gl.bufferData
+
   gl.bufferData = function bufferData (target, data, usage) {
     target |= 0
     usage |= 0
@@ -1352,7 +1255,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _bufferSubData = gl.bufferSubData
   gl.bufferSubData = function bufferSubData (target, offset, data) {
     target |= 0
     offset |= 0
@@ -1423,7 +1325,6 @@ if(!(nativeGL.__modified)){
     return precheckFramebufferStatus(framebuffer)
   }
 
-  var _clear = gl.clear
   gl.clear = function clear (mask) {
     if (!framebufferOk(this)) {
       return
@@ -1431,27 +1332,23 @@ if(!(nativeGL.__modified)){
     return _clear.call(this, mask | 0)
   }
 
-  var _clearColor = gl.clearColor
+
   gl.clearColor = function clearColor (red, green, blue, alpha) {
     return _clearColor.call(this, +red, +green, +blue, +alpha)
   }
 
-  var _clearDepth = gl.clearDepth
+
   gl.clearDepth = function clearDepth (depth) {
     return _clearDepth.call(this, +depth)
   }
 
-  var _clearStencil = gl.clearStencil
   gl.clearStencil = function clearStencil (s) {
     return _clearStencil.call(this, s | 0)
   }
 
-  var _colorMask = gl.colorMask
   gl.colorMask = function colorMask (red, green, blue, alpha) {
     return _colorMask.call(this, !!red, !!green, !!blue, !!alpha)
   }
-
-  var _compileShader = gl.compileShader
 
   function validGLSLIdentifier (str) {
     if (str.indexOf('webgl_') === 0 ||
@@ -1530,7 +1427,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _copyTexImage2D = gl.copyTexImage2D
   gl.copyTexImage2D = function copyTexImage2D (
     target,
     level,
@@ -1593,7 +1489,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _copyTexSubImage2D = gl.copyTexSubImage2D
   gl.copyTexSubImage2D = function copyTexSubImage2D (
     target,
     level,
@@ -1631,7 +1526,6 @@ if(!(nativeGL.__modified)){
       height)
   }
 
-  var _cullFace = gl.cullFace
   gl.cullFace = function cullFace (mode) {
     return _cullFace.call(this, mode | 0)
   }
@@ -1651,16 +1545,13 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _createFramebuffer = gl.createFramebuffer
-  var _createRenderbuffer = gl.createRenderbuffer
-  var _createTexture = gl.createTexture
+
   createObject('createBuffer', WebGLBuffer, '_buffers')
   createObject('createFramebuffer', WebGLFramebuffer, '_framebuffers')
   createObject('createProgram', WebGLProgram, '_programs')
   createObject('createRenderbuffer', WebGLRenderbuffer, '_renderbuffers')
   createObject('createTexture', WebGLTexture, '_textures')
 
-  var _createShader = gl.createShader
   gl.createShader = function (type) {
     type |= 0
     if (type !== gl.FRAGMENT_SHADER &&
@@ -1704,7 +1595,6 @@ if(!(nativeGL.__modified)){
   deleteObject('deleteProgram', WebGLProgram, '_programs')
   deleteObject('deleteShader', WebGLShader, '_shaders')
 
-  var _deleteBuffer = gl.deleteBuffer
   WebGLBuffer.prototype._performDelete = function () {
     var ctx = this._ctx
     delete ctx._buffers[this._ | 0]
@@ -1745,7 +1635,6 @@ if(!(nativeGL.__modified)){
     checkDelete(buffer)
   }
 
-  var _deleteFramebuffer = gl.deleteFramebuffer
   WebGLFramebuffer.prototype._performDelete = function () {
     var ctx = this._ctx
     delete ctx._framebuffers[this._ | 0]
@@ -1782,7 +1671,6 @@ if(!(nativeGL.__modified)){
   //
   // After this, proceed with the usual deletion algorithm
   //
-  var _deleteRenderbuffer = gl.deleteRenderbuffer
   WebGLRenderbuffer.prototype._performDelete = function () {
     var ctx = this._ctx
     delete ctx._renderbuffers[this._ | 0]
@@ -1827,7 +1715,6 @@ if(!(nativeGL.__modified)){
     checkDelete(renderbuffer)
   }
 
-  var _deleteTexture = gl.deleteTexture
   WebGLTexture.prototype._performDelete = function () {
     var ctx = this._ctx
     delete ctx._textures[this._ | 0]
@@ -1891,7 +1778,6 @@ if(!(nativeGL.__modified)){
     checkDelete(texture)
   }
 
-  var _depthFunc = gl.depthFunc
   gl.depthFunc = function depthFunc (func) {
     func |= 0
     switch (func) {
@@ -1910,12 +1796,10 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _depthMask = gl.depthMask
   gl.depthMask = function depthMask (flag) {
     return _depthMask.call(this, !!flag)
   }
 
-  var _depthRange = gl.depthRange
   gl.depthRange = function depthRange (zNear, zFar) {
     zNear = +zNear
     zFar = +zFar
@@ -1925,7 +1809,6 @@ if(!(nativeGL.__modified)){
     setError(this, gl.INVALID_OPERATION)
   }
 
-  var _detachShader = gl.detachShader
   gl.detachShader = function detachShader (program, shader) {
     if (!checkObject(program) ||
       !checkObject(shader)) {
@@ -1942,7 +1825,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _disable = gl.disable
   gl.disable = function disable (cap) {
     cap |= 0
     _disable.call(this, cap)
@@ -1955,7 +1837,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _disableVertexAttribArray = gl.disableVertexAttribArray
   gl.disableVertexAttribArray = function disableVertexAttribArray (index) {
     index |= 0
     if (index < 0 || index >= this._vertexAttribs.length) {
@@ -1966,7 +1847,6 @@ if(!(nativeGL.__modified)){
     this._vertexAttribs[index]._isPointer = false
   }
 
-  var _vertexAttribDivisor = gl.vertexAttribDivisor
   delete gl.vertexAttribDivisor
 
   function beginAttrib0Hack (context) {
@@ -2017,8 +1897,6 @@ if(!(nativeGL.__modified)){
     return true
   }
 
-  var _drawArrays = gl.drawArrays
-  var _drawArraysInstanced = gl.drawArraysInstanced
   delete gl.drawArraysInstanced
   gl.drawArrays = function drawArrays (mode, first, count) {
     mode |= 0
@@ -2063,8 +1941,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _drawElements = gl.drawElements
-  var _drawElementsInstanced = gl.drawElementsInstanced
   delete gl.drawElementsInstanced
   gl.drawElements = function drawElements (mode, count, type, ioffset) {
     mode |= 0
@@ -2175,13 +2051,11 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _enable = gl.enable
   gl.enable = function enable (cap) {
     cap |= 0
     _enable.call(this, cap)
   }
 
-  var _enableVertexAttribArray = gl.enableVertexAttribArray
   gl.enableVertexAttribArray = function enableVertexAttribArray (index) {
     index |= 0
     if (index < 0 || index >= this._vertexAttribs.length) {
@@ -2194,12 +2068,10 @@ if(!(nativeGL.__modified)){
     this._vertexAttribs[index]._isPointer = true
   }
 
-  var _finish = gl.finish
   gl.finish = function finish () {
     return _finish.call(this)
   }
 
-  var _flush = gl.flush
   gl.flush = function flush () {
     return _flush.call(this)
   }
@@ -2259,7 +2131,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _framebufferRenderbuffer = gl.framebufferRenderbuffer
   gl.framebufferRenderbuffer = function framebufferRenderbuffer (
     target,
     attachment,
@@ -2294,7 +2165,6 @@ if(!(nativeGL.__modified)){
     updateFramebufferAttachments(framebuffer)
   }
 
-  var _framebufferTexture2D = gl.framebufferTexture2D
   gl.framebufferTexture2D = function framebufferTexture2D (
     target,
     attachment,
@@ -2355,17 +2225,14 @@ if(!(nativeGL.__modified)){
     updateFramebufferAttachments(framebuffer)
   }
 
-  var _frontFace = gl.frontFace
   gl.frontFace = function frontFace (mode) {
     return _frontFace.call(this, mode | 0)
   }
 
-  var _generateMipmap = gl.generateMipmap
   gl.generateMipmap = function generateMipmap (target) {
     return _generateMipmap.call(this, target | 0) | 0
   }
 
-  var _getActiveAttrib = gl.getActiveAttrib
   gl.getActiveAttrib = function getActiveAttrib (program, index) {
     if (!checkObject(program)) {
       throw new TypeError('getActiveAttrib(WebGLProgram)')
@@ -2380,7 +2247,6 @@ if(!(nativeGL.__modified)){
     return null
   }
 
-  var _getActiveUniform = gl.getActiveUniform
   gl.getActiveUniform = function getActiveUniform (program, index) {
     if (!checkObject(program)) {
       throw new TypeError('getActiveUniform(WebGLProgram, GLint)')
@@ -2395,7 +2261,6 @@ if(!(nativeGL.__modified)){
     return null
   }
 
-  var _getAttachedShaders = gl.getAttachedShaders
   gl.getAttachedShaders = function getAttachedShaders (program) {
     if (!checkObject(program) ||
       (typeof program === 'object' &&
@@ -2419,7 +2284,6 @@ if(!(nativeGL.__modified)){
     return null
   }
 
-  var _getAttribLocation = gl.getAttribLocation
   gl.getAttribLocation = function getAttribLocation (program, name) {
     if (!checkObject(program)) {
       throw new TypeError('getAttribLocation(WebGLProgram, String)')
@@ -2433,7 +2297,6 @@ if(!(nativeGL.__modified)){
     return -1
   }
 
-  var _getParameter = gl.getParameter
   gl.getParameter = function getParameter (pname) {
     pname |= 0
     switch (pname) {
@@ -2556,7 +2419,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _getShaderPrecisionFormat = gl.getShaderPrecisionFormat
   gl.getShaderPrecisionFormat = function getShaderPrecisionFormat (
     shaderType,
     precisionType) {
@@ -2583,7 +2445,6 @@ if(!(nativeGL.__modified)){
     return new WebGLShaderPrecisionFormat(format)
   }
 
-  var _getBufferParameter = gl.getBufferParameter
   gl.getBufferParameter = function getBufferParameter (target, pname) {
     target |= 0
     pname |= 0
@@ -2603,7 +2464,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _getError = gl.getError
   gl.getError = function getError () {
     return _getError.call(this)
   }
@@ -2659,7 +2519,6 @@ if(!(nativeGL.__modified)){
     return null
   }
 
-  var _getProgramParameter = gl.getProgramParameter
   gl.getProgramParameter = function getProgramParameter (program, pname) {
     pname |= 0
     if (!checkObject(program)) {
@@ -2685,7 +2544,6 @@ if(!(nativeGL.__modified)){
     return null
   }
 
-  var _getProgramInfoLog = gl.getProgramInfoLog
   gl.getProgramInfoLog = function getProgramInfoLog (program) {
     if (!checkObject(program)) {
       throw new TypeError('getProgramInfoLog(WebGLProgram)')
@@ -2695,7 +2553,6 @@ if(!(nativeGL.__modified)){
     return null
   }
 
-  var _getRenderbufferParameter = gl.getRenderbufferParameter
   gl.getRenderbufferParameter = function getRenderbufferParameter (target, pname) {
     target |= 0
     pname |= 0
@@ -2728,7 +2585,6 @@ if(!(nativeGL.__modified)){
     return null
   }
 
-  var _getShaderParameter = gl.getShaderParameter
   gl.getShaderParameter = function getShaderParameter (shader, pname) {
     pname |= 0
     if (!checkObject(shader)) {
@@ -2747,7 +2603,6 @@ if(!(nativeGL.__modified)){
     return null
   }
 
-  var _getShaderInfoLog = gl.getShaderInfoLog
   gl.getShaderInfoLog = function getShaderInfoLog (shader) {
     if (!checkObject(shader)) {
       throw new TypeError('getShaderInfoLog(WebGLShader)')
@@ -2766,7 +2621,7 @@ if(!(nativeGL.__modified)){
     return null
   }
 
-  var _getTexParameter = gl.getTexParameter
+
   gl.getTexParameter = function getTexParameter (target, pname) {
     target |= 0
     pname |= 0
@@ -2794,7 +2649,6 @@ if(!(nativeGL.__modified)){
     return null
   }
 
-  var _getUniform = gl.getUniform
   gl.getUniform = function getUniform (program, location) {
     if (!checkObject(program) ||
       !checkObject(location)) {
@@ -2854,7 +2708,6 @@ if(!(nativeGL.__modified)){
     return null
   }
 
-  var _getUniformLocation = gl.getUniformLocation
   gl.getUniformLocation = function getUniformLocation (program, name) {
     if (!checkObject(program)) {
       throw new TypeError('getUniformLocation(WebGLProgram, String)')
@@ -2981,7 +2834,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _hint = gl.hint
   gl.hint = function hint (target, mode) {
     target |= 0
     mode |= 0
@@ -3023,12 +2875,10 @@ if(!(nativeGL.__modified)){
   isObject('isShader', WebGLShader)
   isObject('isTexture', WebGLTexture)
 
-  var _isEnabled = gl.isEnabled
   gl.isEnabled = function isEnabled (cap) {
     return _isEnabled.call(this, cap | 0)
   }
 
-  var _lineWidth = gl.lineWidth
   gl.lineWidth = function lineWidth (width) {
     if (isNaN(width)) {
       setError(this, gl.INVALID_VALUE)
@@ -3037,7 +2887,6 @@ if(!(nativeGL.__modified)){
     return _lineWidth.call(this, +width)
   }
 
-  var _linkProgram = gl.linkProgram
 
   function fixupLink (context, program) {
     if (!_getProgramParameter.call(context, program._, gl.LINK_STATUS)) {
@@ -3108,7 +2957,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _pixelStorei = gl.pixelStorei
   gl.pixelStorei = function pixelStorei (pname, param) {
     pname |= 0
     param |= 0
@@ -3141,12 +2989,10 @@ if(!(nativeGL.__modified)){
     return _pixelStorei.call(this, pname, param)
   }
 
-  var _polygonOffset = gl.polygonOffset
   gl.polygonOffset = function polygonOffset (factor, units) {
     return _polygonOffset.call(this, +factor, +units)
   }
 
-  var _readPixels = gl.readPixels
   gl.readPixels = function readPixels (x, y, width, height, format, type, pixels) {
     var i
     var j
@@ -3272,7 +3118,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _renderbufferStorage = gl.renderbufferStorage
   gl.renderbufferStorage = function renderbufferStorage (
     target,
     internalformat,
@@ -3336,12 +3181,10 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _sampleCoverage = gl.sampleCoverage
   gl.sampleCoverage = function sampleCoverage (value, invert) {
     return _sampleCoverage.call(this, +value, !!invert)
   }
 
-  var _scissor = gl.scissor
   gl.scissor = function scissor (x, y, width, height) {
     return _scissor.call(this, x | 0, y | 0, width | 0, height | 0)
   }
@@ -3350,7 +3193,6 @@ if(!(nativeGL.__modified)){
     return '#define gl_MaxDrawBuffers 1\n' + source
   }
 
-  var _shaderSource = gl.shaderSource
   gl.shaderSource = function shaderSource (shader, source) {
     if (!checkObject(shader)) {
       throw new TypeError('shaderSource(WebGLShader, String)')
@@ -3369,32 +3211,26 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _stencilFunc = gl.stencilFunc
   gl.stencilFunc = function stencilFunc (func, ref, mask) {
     return _stencilFunc.call(this, func | 0, ref | 0, mask | 0)
   }
 
-  var _stencilFuncSeparate = gl.stencilFuncSeparate
   gl.stencilFuncSeparate = function stencilFuncSeparate (face, func, ref, mask) {
     return _stencilFuncSeparate.call(this, face | 0, func | 0, ref | 0, mask | 0)
   }
 
-  var _stencilMask = gl.stencilMask
   gl.stencilMask = function stencilMask (mask) {
     return _stencilMask.call(this, mask | 0)
   }
 
-  var _stencilMaskSeparate = gl.stencilMaskSeparate
   gl.stencilMaskSeparate = function stencilMaskSeparate (face, mask) {
     return _stencilMaskSeparate.call(this, face | 0, mask | 0)
   }
 
-  var _stencilOp = gl.stencilOp
   gl.stencilOp = function stencilOp (fail, zfail, zpass) {
     return _stencilOp.call(this, fail | 0, zfail | 0, zpass | 0)
   }
 
-  var _stencilOpSeparate = gl.stencilOpSeparate
   gl.stencilOpSeparate = function stencilOpSeparate (face, fail, zfail, zpass) {
     return _stencilOpSeparate.call(this, face | 0, fail | 0, zfail | 0, zpass | 0)
   }
@@ -3491,7 +3327,6 @@ if(!(nativeGL.__modified)){
       format === gl.RGBA)
   }
 
-  var _texImage2D = gl.texImage2D
   gl.texImage2D = function texImage2D (
     target,
     level,
@@ -3606,7 +3441,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _texSubImage2D = gl.texSubImage2D
   gl.texSubImage2D = function texSubImage2D (
     target,
     level,
@@ -3690,7 +3524,6 @@ if(!(nativeGL.__modified)){
       data)
   }
 
-  var _texParameterf = gl.texParameterf
   gl.texParameterf = function texParameterf (target, pname, param) {
     target |= 0
     pname |= 0
@@ -3709,7 +3542,7 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _texParameteri = gl.texParameteri
+
   gl.texParameteri = function texParameteri (target, pname, param) {
     target |= 0
     pname |= 0
@@ -3907,7 +3740,7 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _useProgram = gl.useProgram
+
   gl.useProgram = function useProgram (program) {
     if (!checkObject(program)) {
       throw new TypeError('useProgram(WebGLProgram)')
@@ -3925,7 +3758,6 @@ if(!(nativeGL.__modified)){
     }
   }
 
-  var _validateProgram = gl.validateProgram
   gl.validateProgram = function validateProgram (program) {
     if (checkWrapper(this, program, WebGLProgram)) {
       _validateProgram.call(this, program._ | 0)
@@ -3997,7 +3829,6 @@ if(!(nativeGL.__modified)){
   }
   makeVertexAttribs()
 
-  var _vertexAttribPointer = gl.vertexAttribPointer
   gl.vertexAttribPointer = function vertexAttribPointer (
     index,
     size,
@@ -4074,21 +3905,216 @@ if(!(nativeGL.__modified)){
     attrib._inputSize = size
   }
 
-  var _viewport = gl.viewport
   gl.viewport = function viewport (x, y, width, height) {
     return _viewport.call(this, x | 0, y | 0, width | 0, height | 0)
   }
 
-  function allocateDrawingBuffer (context, width, height) {
-    context._drawingBuffer = new WebGLDrawingBufferWrapper(
-      _createFramebuffer.call(context),
-      _createTexture.call(context),
-      _createRenderbuffer.call(context))
 
-    resizeDrawingBuffer(context, width, height)
+
+
+
+  gl.isContextLost = function () {
+    return false
   }
 
-  exports.allocateDrawingBuffer = allocateDrawingBuffer
+  gl.compressedTexImage2D = function () {
+    // TODO not yet implemented
+  }
+
+  gl.compressedTexSubImage2D = function () {
+    // TODO not yet implemented
+  }
+}
+
+// Export type boxes for WebGL
+exports.WebGLRenderingContext = nativeGL.WebGLRenderingContext
+
+function WebGLProgram (_, ctx) {
+	this._ = _
+	this._ctx = ctx
+	this._linkCount = 0
+	this._pendingDelete = false
+	this._linkStatus = false
+	this._linkInfoLog = 'not linked'
+	this._references = []
+	this._refCount = 0
+	this._attributes = []
+	this._uniforms = []
+}
+exports.WebGLProgram = WebGLProgram
+
+function WebGLShader (_, ctx, type) {
+	this._ = _
+	this._type = type
+	this._ctx = ctx
+	this._pendingDelete = false
+	this._references = []
+	this._refCount = 0
+	this._source = ''
+	this._compileStatus = false
+	this._compileInfo = ''
+}
+exports.WebGLShader = WebGLShader
+
+function WebGLBuffer (_, ctx) {
+	this._ = _
+	this._ctx = ctx
+	this._binding = 0
+	this._size = 0
+	this._pendingDelete = false
+	this._references = []
+	this._refCount = 0
+	this._elements = new Uint8Array(0)
+}
+exports.WebGLBuffer = WebGLBuffer
+
+function WebGLFramebuffer (_, ctx) {
+	this._ = _
+	this._ctx = ctx
+	this._binding = 0
+	this._pendingDelete = false
+	this._references = []
+	this._refCount = 0
+
+	this._width = 0
+	this._height = 0
+
+	this._attachments = {}
+	this._attachments[gl.COLOR_ATTACHMENT0] = null
+	this._attachments[gl.DEPTH_ATTACHMENT] = null
+	this._attachments[gl.STENCIL_ATTACHMENT] = null
+	this._attachments[gl.DEPTH_STENCIL_ATTACHMENT] = null
+
+	this._attachmentLevel = {}
+	this._attachmentLevel[gl.COLOR_ATTACHMENT0] = 0
+	this._attachmentLevel[gl.DEPTH_ATTACHMENT] = 0
+	this._attachmentLevel[gl.STENCIL_ATTACHMENT] = 0
+	this._attachmentLevel[gl.DEPTH_STENCIL_ATTACHMENT] = 0
+
+	this._attachmentFace = {}
+	this._attachmentFace[gl.COLOR_ATTACHMENT0] = 0
+	this._attachmentFace[gl.DEPTH_ATTACHMENT] = 0
+	this._attachmentFace[gl.STENCIL_ATTACHMENT] = 0
+	this._attachmentFace[gl.DEPTH_STENCIL_ATTACHMENT] = 0
+}
+exports.WebGLFramebuffer = WebGLFramebuffer
+
+function WebGLRenderbuffer (_, ctx) {
+	this._ = _
+	this._ctx = ctx
+	this._binding = 0
+	this._pendingDelete = false
+	this._references = []
+	this._refCount = 0
+	this._width = 0
+	this._height = 0
+	this._format = 0
+}
+exports.WebGLRenderbuffer = WebGLRenderbuffer
+
+function WebGLTexture (_, ctx) {
+	this._ = _
+	this._ctx = ctx
+	this._binding = 0
+	this._pendingDelete = false
+	this._references = []
+	this._refCount = 0
+	this._levelWidth = new Int32Array(32)
+	this._levelHeight = new Int32Array(32)
+	this._format = 0
+	this._type = 0
+}
+exports.WebGLTexture = WebGLTexture
+
+function WebGLActiveInfo (_) {
+	this.size = _.size
+	this.type = _.type
+	this.name = _.name
+}
+exports.WebGLActiveInfo = WebGLActiveInfo
+
+function WebGLShaderPrecisionFormat (_) {
+	this.rangeMin = _.rangeMin
+	this.rangeMax = _.rangeMax
+	this.precision = _.precision
+}
+exports.WebGLShaderPrecisionFormat = WebGLShaderPrecisionFormat
+
+function WebGLUniformLocation (_, program, info) {
+	this._ = _
+	this._program = program
+	this._linkCount = program._linkCount
+	this._activeInfo = info
+	this._array = null
+}
+exports.WebGLUniformLocation = WebGLUniformLocation
+
+function WebGLContextAttributes (
+	alpha,
+	depth,
+	stencil,
+	antialias,
+	premultipliedAlpha,
+	preserveDrawingBuffer,
+	preferLowPowerToHighPerformance,
+	failIfMajorPerformanceCaveat) {
+	this.alpha = alpha
+	this.depth = depth
+	this.stencil = stencil
+	this.antialias = antialias
+	this.premultipliedAlpha = premultipliedAlpha
+	this.preserveDrawingBuffer = preserveDrawingBuffer
+	this.preferLowPowerToHighPerformance = preferLowPowerToHighPerformance
+	this.failIfMajorPerformanceCaveat = failIfMajorPerformanceCaveat
+}
+exports.WebGLContextAttributes = WebGLContextAttributes
+
+function WebGLVertexAttribute (ctx, idx) {
+	this._ctx = ctx
+	this._idx = idx
+	this._isPointer = false
+	this._pointerBuffer = null
+	this._pointerOffset = 0
+	this._pointerSize = 0
+	this._pointerStride = 0
+	this._pointerType = gl.FLOAT
+	this._pointerNormal = false
+	this._divisor = 0
+	this._inputSize = 4
+	this._inputStride = 0
+	this._data = new Float32Array([0, 0, 0, 1])
+}
+exports.WebGLVertexAttribute = WebGLVertexAttribute
+
+function WebGLTextureUnit (ctx, idx) {
+	this._ctx = ctx
+	this._idx = idx
+	this._mode = 0
+	this._bind2D = null
+	this._bindCube = null
+}
+exports.WebGLTextureUnit = WebGLTextureUnit
+
+function WebGLDrawingBufferWrapper (
+	framebuffer,
+	color,
+	depthStencil) {
+	this._framebuffer = framebuffer
+	this._color = color
+	this._depthStencil = depthStencil
+}
+exports.WebGLDrawingBufferWrapper = WebGLDrawingBufferWrapper
+
+function allocateDrawingBuffer (context, width, height) {
+	context._drawingBuffer = new WebGLDrawingBufferWrapper(
+		_createFramebuffer.call(context),
+		_createTexture.call(context),
+		_createRenderbuffer.call(context))
+
+	resizeDrawingBuffer(context, width, height)
+}
+
+exports.allocateDrawingBuffer = allocateDrawingBuffer
 
   function resizeDrawingBuffer (context, width, height) {
     var prevFramebuffer = context._activeFramebuffer
@@ -4177,15 +4203,16 @@ if(!(nativeGL.__modified)){
     context.bindRenderbuffer(gl.RENDERBUFFER, prevRenderbuffer)
   }
 
-  gl.isContextLost = function () {
-    return false
+  function activeTextureUnit (context) {
+    return context._textureUnits[context._activeTextureUnit]
   }
 
-  gl.compressedTexImage2D = function () {
-    // TODO not yet implemented
+  function activeTexture (context, target) {
+    var activeUnit = activeTextureUnit(context)
+    if (target === gl.TEXTURE_2D) {
+      return activeUnit._bind2D
+    } else if (target === gl.TEXTURE_CUBE_MAP) {
+      return activeUnit._bindCube
+    }
+    return null
   }
-
-  gl.compressedTexSubImage2D = function () {
-    // TODO not yet implemented
-  }
-}
